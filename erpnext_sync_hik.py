@@ -167,7 +167,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         else:
             attendance_failed_logger.error("\t".join([str(erpnext_status_code), str(device_attendance_log['serialNo']),
                 str(device_attendance_log['emp_no']), str(device_attendance_log['time']),
-                str(device_attendance_log['attendanceStatus']), str(device_attendance_log['statusstatusValue']),
+                str(device_attendance_log['attendanceStatus']), str(device_attendance_log['statusValue']),
                 json.dumps(device_attendance_log, default=str)]))
             if not(any(error in erpnext_message for error in allowlisted_errors)):
                 raise Exception('API Call to ERPNext Failed.')
