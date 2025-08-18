@@ -16,7 +16,7 @@ from pickledb import PickleDB
 
 import importlib.util
 
-spec = importlib.util.spec_from_file_location("hikvision_isapi", "../Scripts_HIKVISION_ERPNEXT/hikvision_isapi/client.py")
+spec = importlib.util.spec_from_file_location("hikvision_isapi", "..\Scripts_HIKVISION_ERPNEXT\hikvision_isapi\client.py")
 hikvision_C = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(hikvision_C)
 
