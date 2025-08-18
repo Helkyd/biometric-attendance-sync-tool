@@ -107,13 +107,16 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         print ('Chamou get_all_attendance_from_device')
         print ('RESULTADO')
         print (device_attendance_logs)
-        
+
         if not device_attendance_logs:
             return
     # for finding the last successfull push and restart from that point (or) from a set 'config.IMPORT_START_DATE' (whichever is later)
     index_of_last = -1
     last_line = get_last_line_from_file('/'.join([config.LOGS_DIRECTORY, attendance_success_log_file])+'.log')
     import_start_date = _safe_convert_date(config.IMPORT_START_DATE, "%Y%m%d")
+
+    print ('last line ', last_line)
+    print ('import start ', import_start_date)
     if last_line or import_start_date:
         last_user_id = None
         last_timestamp = None
@@ -127,6 +130,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                     last_user_id = None
             else:
                 last_timestamp = import_start_date
+        print ('For para enumerate device attendance logs...')
         for i, x in enumerate(device_attendance_logs):
             if last_user_id and last_timestamp:
                 if last_user_id == str(x['employeeNoString']) and last_timestamp == x['time']:
@@ -137,6 +141,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                     index_of_last = i
                     break
 
+    print ('index of last ', index_of_last)
     for device_attendance_log in device_attendance_logs[index_of_last+1:]:
         punch_direction = device['punch_direction']
         if punch_direction == 'AUTO':
