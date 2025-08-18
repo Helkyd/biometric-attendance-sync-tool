@@ -104,6 +104,10 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
     attendance_failed_logger = setup_logger(attendance_failed_log_file, '/'.join([config.LOGS_DIRECTORY, attendance_failed_log_file])+'.log')
     if not device_attendance_logs:
         device_attendance_logs = get_all_attendance_from_device(device['ip'], device_id=device['device_id'], clear_from_device_on_fetch=device['clear_from_device_on_fetch'])
+        print ('Chamou get_all_attendance_from_device')
+        print ('RESULTADO')
+        print (device_attendance_logs)
+        
         if not device_attendance_logs:
             return
     # for finding the last successfull push and restart from that point (or) from a set 'config.IMPORT_START_DATE' (whichever is later)
@@ -144,7 +148,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                 punch_direction = None
         #FIX 18-08-2025; Fetch EMP and replace employeeNoString
         #TODO: Fetch EMP and replace employeeNoString
-
+        print ('Vai fazer o send TO ERPNEXT')
         erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['emp_no'], device_attendance_log['time'], device['device_id'], punch_direction)
         if erpnext_status_code == 200:
             attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
@@ -222,8 +226,8 @@ def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, cl
         error_logger.exception(str(ip)+' exception when fetching from device...')
         raise Exception('Device fetch failed.')
     finally:
-        if conn:
-            print ('Disconectado...')
+        #if conn:
+        print ('Disconectado...')
             #conn.disconnect()
     #return list(map(lambda x: x.__dict__, attendances))
     return list(attendances)
