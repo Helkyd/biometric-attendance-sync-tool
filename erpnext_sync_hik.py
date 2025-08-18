@@ -125,11 +125,11 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                 last_timestamp = import_start_date
         for i, x in enumerate(device_attendance_logs):
             if last_user_id and last_timestamp:
-                if last_user_id == str(x['user_id']) and last_timestamp == x['timestamp']:
+                if last_user_id == str(x['employeeNoString']) and last_timestamp == x['time']:
                     index_of_last = i
                     break
             elif last_timestamp:
-                if x['timestamp'] >= last_timestamp:
+                if x['time'] >= last_timestamp:
                     index_of_last = i
                     break
 
@@ -142,15 +142,18 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                 punch_direction = 'IN'
             else:
                 punch_direction = None
-        erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['user_id'], device_attendance_log['timestamp'], device['device_id'], punch_direction)
+        #FIX 18-08-2025; Fetch EMP and replace employeeNoString
+        #TODO: Fetch EMP and replace employeeNoString
+
+        erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['emp_no'], device_attendance_log['time'], device['device_id'], punch_direction)
         if erpnext_status_code == 200:
-            attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['uid']),
-                str(device_attendance_log['user_id']), str(device_attendance_log['timestamp'].timestamp()),
+            attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
+                str(device_attendance_log['emp_no']), str(device_attendance_log['time'].timestamp()),
                 str(device_attendance_log['punch']), str(device_attendance_log['status']),
                 json.dumps(device_attendance_log, default=str)]))
         else:
-            attendance_failed_logger.error("\t".join([str(erpnext_status_code), str(device_attendance_log['uid']),
-                str(device_attendance_log['user_id']), str(device_attendance_log['timestamp'].timestamp()),
+            attendance_failed_logger.error("\t".join([str(erpnext_status_code), str(device_attendance_log['serialNo']),
+                str(device_attendance_log['emp_no']), str(device_attendance_log['time'].timestamp()),
                 str(device_attendance_log['punch']), str(device_attendance_log['status']),
                 json.dumps(device_attendance_log, default=str)]))
             if not(any(error in erpnext_message for error in allowlisted_errors)):
@@ -159,36 +162,71 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
 
 def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, clear_from_device_on_fetch=False):
     #  Sample Attendance Logs [{'punch': 255, 'user_id': '22', 'uid': 12349, 'status': 1, 'timestamp': datetime.datetime(2019, 2, 26, 20, 31, 29)},{'punch': 255, 'user_id': '7', 'uid': 7, 'status': 1, 'timestamp': datetime.datetime(2019, 2, 26, 20, 31, 36)}]
-    zk = ZK(ip, port=port, timeout=timeout)
+    #zk = ZK(ip, port=port, timeout=timeout)
     conn = None
     attendances = []
     try:
-        conn = zk.connect()
-        x = conn.disable_device()
+        #conn = zk.connect()
+        #x = conn.disable_device()
         # device is disabled when fetching data
-        info_logger.info("\t".join((ip, "Device Disable Attempted. Result:", str(x))))
-        attendances = conn.get_attendance()
+        info_logger.info("\t".join((ip, "Device Disable Attempted. Result:")))
+        
+        eventstoday = hikvision_client.event_search()
+        print ('Eventos HOJE....')
+        print (eventstoday.status_code)
+        print (eventstoday.text)
+        attendances = json.loads(eventstoday.text)['AcsEvent']['InfoList']
+
+        #attendances = conn.get_attendance()
+
         info_logger.info("\t".join((ip, "Attendances Fetched:", str(len(attendances)))))
         status.set(f'{device_id}_push_timestamp', None)
         status.set(f'{device_id}_pull_timestamp', str(datetime.datetime.now()))
         if len(attendances):
             # keeping a backup before clearing data incase the programs fails.
             # if everything goes well then this file is removed automatically at the end.
-            dump_file_name = get_dump_file_name_and_directory(device_id, ip)
-            with open(dump_file_name, 'w+') as f:
-                f.write(json.dumps(list(map(lambda x: x.__dict__, attendances)), default=datetime.datetime.timestamp))
-            if clear_from_device_on_fetch:
-                x = conn.clear_attendance()
-                info_logger.info("\t".join((ip, "Attendance Clear Attempted. Result:", str(x))))
-        x = conn.enable_device()
-        info_logger.info("\t".join((ip, "Device Enable Attempted. Result:", str(x))))
+
+            #POR FAZER
+            print ('Por fazer o DUMP file e limpar registos...')
+            #Adds name (Emp/)
+            url = f"{config.ERPNEXT_URL}/api/method/angola_erp.util.angola.lista_emps_hikvision"
+            headers = {
+                'Authorization': "token "+ config.ERPNEXT_API_KEY + ":" + config.ERPNEXT_API_SECRET,
+                'Accept': 'application/json'
+            }
+            response = requests.request("GET", url, headers=headers)
+            if response.status_code == 200:
+                print ('RETORNA A LISTA com emp_number')
+                lista_emps = json.loads(response._content)['message']
+                for ll in lista_emps:
+                    print ('llll ', ll['name'])
+                    print (ll['attendance_device_id'])
+                    for idx,att in enumerate(attendances):
+                        print ('atttt ', att['employeeNoString'])
+                        if ll['attendance_device_id'] == att['employeeNoString']:
+                            print ('ADD EMP_NO')
+                            attendances[idx].update({"emp_no": ll['name']})
+                        
+
+            #dump_file_name = get_dump_file_name_and_directory(device_id, ip)
+            #with open(dump_file_name, 'w+') as f:
+            #    f.write(json.dumps(list(map(lambda x: x.__dict__, attendances)), default=datetime.datetime.timestamp))
+            #if clear_from_device_on_fetch:
+            #   print ('Por fazer.... Limpar registos no aparelho!!!')
+                #x = conn.clear_attendance()
+                #info_logger.info("\t".join((ip, "Attendance Clear Attempted. Result:", str(x))))
+        #x = conn.enable_device()
+        #info_logger.info("\t".join((ip, "Device Enable Attempted. Result:", str(x))))
+        info_logger.info("\t".join((ip, "Device Enable Attempted. Result:")))
     except:
         error_logger.exception(str(ip)+' exception when fetching from device...')
         raise Exception('Device fetch failed.')
     finally:
         if conn:
-            conn.disconnect()
-    return list(map(lambda x: x.__dict__, attendances))
+            print ('Disconectado...')
+            #conn.disconnect()
+    #return list(map(lambda x: x.__dict__, attendances))
+    return list(attendances)
 
 
 def send_to_erpnext(employee_field_value, timestamp, device_id=None, log_type=None):
