@@ -131,12 +131,15 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
             else:
                 last_timestamp = import_start_date
         print ('For para enumerate device attendance logs...')
+        print ('last_timestamp ', last_timestamp)
+        print ('last_user_id ', last_user_id)
         for i, x in enumerate(device_attendance_logs):
             if last_user_id and last_timestamp:
                 if last_user_id == str(x['employeeNoString']) and last_timestamp == x['time']:
                     index_of_last = i
                     break
             elif last_timestamp:
+                print ('x time ', x['time'])
                 if x['time'] >= last_timestamp:
                     index_of_last = i
                     break
