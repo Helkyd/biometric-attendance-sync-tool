@@ -157,20 +157,21 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                 punch_direction = None
         #FIX 18-08-2025; Fetch EMP and replace employeeNoString
         #TODO: Fetch EMP and replace employeeNoString
-        print ('Vai fazer o send TO ERPNEXT')
-        erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['employeeNoString'], datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S"), device['device_id'], punch_direction)
-        if erpnext_status_code == 200:
-            attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
-                str(device_attendance_log['emp_no']), str(device_attendance_log['time']),
-                str(device_attendance_log['attendanceStatus']), str(device_attendance_log['statusValue']),
-                json.dumps(device_attendance_log, default=str)]))
-        else:
-            attendance_failed_logger.error("\t".join([str(erpnext_status_code), str(device_attendance_log['serialNo']),
-                str(device_attendance_log['emp_no']), str(device_attendance_log['time']),
-                str(device_attendance_log['attendanceStatus']), str(device_attendance_log['statusValue']),
-                json.dumps(device_attendance_log, default=str)]))
-            if not(any(error in erpnext_message for error in allowlisted_errors)):
-                raise Exception('API Call to ERPNext Failed.')
+        if device_attendance_log['employeeNoString'] != "0":
+            print ('Vai fazer o send TO ERPNEXT')
+            erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['employeeNoString'], datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S"), device['device_id'], punch_direction)
+            if erpnext_status_code == 200:
+                attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
+                    str(device_attendance_log['emp_no']), str(device_attendance_log['time']),
+                    str(device_attendance_log['attendanceStatus']), str(device_attendance_log['statusValue']),
+                    json.dumps(device_attendance_log, default=str)]))
+            else:
+                attendance_failed_logger.error("\t".join([str(erpnext_status_code), str(device_attendance_log['serialNo']),
+                    str(device_attendance_log['emp_no']), str(device_attendance_log['time']),
+                    str(device_attendance_log['attendanceStatus']), str(device_attendance_log['statusValue']),
+                    json.dumps(device_attendance_log, default=str)]))
+                if not(any(error in erpnext_message for error in allowlisted_errors)):
+                    raise Exception('API Call to ERPNext Failed.')
 
 
 def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, clear_from_device_on_fetch=False):
