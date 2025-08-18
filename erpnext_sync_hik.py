@@ -14,7 +14,6 @@ from pickledb import PickleDB
 #from zk import ZK, const
 
 
-#from datetime import datetime
 import importlib.util
 
 spec = importlib.util.spec_from_file_location("hikvision_isapi", "..\\Scripts_HIKVISION_ERPNEXT\\hikvision_isapi\\client.py")
@@ -150,9 +149,9 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
     for device_attendance_log in device_attendance_logs[index_of_last+1:]:
         punch_direction = device['punch_direction']
         if punch_direction == 'AUTO':
-            if device_attendance_log['punch'] in device_punch_values_OUT:
+            if device_attendance_log['attendanceStatus'] in device_punch_values_OUT:
                 punch_direction = 'OUT'
-            elif device_attendance_log['punch'] in device_punch_values_IN:
+            elif device_attendance_log['attendanceStatus'] in device_punch_values_IN:
                 punch_direction = 'IN'
             else:
                 punch_direction = None
@@ -163,12 +162,12 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         if erpnext_status_code == 200:
             attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
                 str(device_attendance_log['emp_no']), str(device_attendance_log['time'].timestamp()),
-                str(device_attendance_log['punch']), str(device_attendance_log['status']),
+                str(device_attendance_log['attendanceStatus']), str(device_attendance_log['status']),
                 json.dumps(device_attendance_log, default=str)]))
         else:
             attendance_failed_logger.error("\t".join([str(erpnext_status_code), str(device_attendance_log['serialNo']),
                 str(device_attendance_log['emp_no']), str(device_attendance_log['time'].timestamp()),
-                str(device_attendance_log['punch']), str(device_attendance_log['status']),
+                str(device_attendance_log['attendanceStatus']), str(device_attendance_log['status']),
                 json.dumps(device_attendance_log, default=str)]))
             if not(any(error in erpnext_message for error in allowlisted_errors)):
                 raise Exception('API Call to ERPNext Failed.')
@@ -247,6 +246,9 @@ def send_to_erpnext(employee_field_value, timestamp, device_id=None, log_type=No
     """
     Example: send_to_erpnext('12349',datetime.datetime.now(),'HO1','IN')
     """
+
+    print ('RUNNNINGGGGGGG send to erpnext....')
+    
     endpoint_app = "hrms" if ERPNEXT_VERSION > 13 else "erpnext"
     url = f"{config.ERPNEXT_URL}/api/method/{endpoint_app}.hr.doctype.employee_checkin.employee_checkin.add_log_based_on_employee_field"
     headers = {
