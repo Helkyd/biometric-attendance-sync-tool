@@ -158,7 +158,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         #FIX 18-08-2025; Fetch EMP and replace employeeNoString
         #TODO: Fetch EMP and replace employeeNoString
         print ('Vai fazer o send TO ERPNEXT')
-        erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['emp_no'], device_attendance_log['time'], device['device_id'], punch_direction)
+        erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['employeeNoString'], device_attendance_log['time'], device['device_id'], punch_direction)
         if erpnext_status_code == 200:
             attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
                 str(device_attendance_log['emp_no']), str(device_attendance_log['time'].timestamp()),
@@ -248,7 +248,7 @@ def send_to_erpnext(employee_field_value, timestamp, device_id=None, log_type=No
     """
 
     print ('RUNNNINGGGGGGG send to erpnext....')
-    
+
     endpoint_app = "hrms" if ERPNEXT_VERSION > 13 else "erpnext"
     url = f"{config.ERPNEXT_URL}/api/method/{endpoint_app}.hr.doctype.employee_checkin.employee_checkin.add_log_based_on_employee_field"
     headers = {
@@ -267,10 +267,10 @@ def send_to_erpnext(employee_field_value, timestamp, device_id=None, log_type=No
     else:
         error_str = _safe_get_error_str(response)
         if EMPLOYEE_NOT_FOUND_ERROR_MESSAGE in error_str:
-            error_logger.error('\t'.join(['Error during ERPNext API Call.', str(employee_field_value), str(timestamp.timestamp()), str(device_id), str(log_type), error_str]))
+            error_logger.error('\t'.join(['Error during ERPNext API Call.', str(employee_field_value), str(timestamp), str(device_id), str(log_type), error_str]))
             # TODO: send email?
         else:
-            error_logger.error('\t'.join(['Error during ERPNext API Call.', str(employee_field_value), str(timestamp.timestamp()), str(device_id), str(log_type), error_str]))
+            error_logger.error('\t'.join(['Error during ERPNext API Call.', str(employee_field_value), str(timestamp), str(device_id), str(log_type), error_str]))
         return response.status_code, error_str
 
 def update_shift_last_sync_timestamp(shift_type_device_mapping):
