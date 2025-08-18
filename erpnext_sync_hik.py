@@ -14,7 +14,7 @@ from pickledb import PickleDB
 #from zk import ZK, const
 
 
-from datetime import datetime
+#from datetime import datetime
 import importlib.util
 
 spec = importlib.util.spec_from_file_location("hikvision_isapi", "..\\Scripts_HIKVISION_ERPNEXT\\hikvision_isapi\\client.py")
@@ -141,7 +141,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                     break
             elif last_timestamp:
                 print ('x time ', x['time'])
-                if datetime.strptime(x['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S") >= last_timestamp:
+                if datetime.datetime.strptime(x['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S") >= last_timestamp:
                 #if x['time'] >= last_timestamp:
                     index_of_last = i
                     break
