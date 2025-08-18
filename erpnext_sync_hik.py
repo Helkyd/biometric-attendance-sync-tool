@@ -334,7 +334,7 @@ if not os.path.exists(config.LOGS_DIRECTORY):
     os.makedirs(config.LOGS_DIRECTORY)
 error_logger = setup_logger('error_logger', '/'.join([config.LOGS_DIRECTORY, 'error.log']), logging.ERROR)
 info_logger = setup_logger('info_logger', '/'.join([config.LOGS_DIRECTORY, 'logs.log']))
-status = PickleDB('/'.join([config.LOGS_DIRECTORY, 'status.json']), True)
+status = PickleDB('/'.join([config.LOGS_DIRECTORY, 'status.json']))
 
 def infinite_loop(sleep_time=15):
     print("Service Running...")
