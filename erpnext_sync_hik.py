@@ -160,8 +160,8 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         if device_attendance_log['employeeNoString'] != "0" and device_attendance_log['employeeNoString'] != "1":
             print ('Vai fazer o send TO ERPNEXT')
             print ('attanda log ', device_attendance_log['time'])
-            print (datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S"))
-            erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['employeeNoString'], datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S"), device['device_id'], punch_direction)
+            print (datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ")[:device_attendance_log['time'].find("+")],"%Y-%m-%d %H:%M:%S"))
+            erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['employeeNoString'], datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ")[:device_attendance_log['time'].find("+")],"%Y-%m-%d %H:%M:%S"), device['device_id'], punch_direction)
             if erpnext_status_code == 200:
                 attendance_success_logger.info("\t".join([erpnext_message, str(device_attendance_log['serialNo']),
                     str(device_attendance_log['emp_no']), str(device_attendance_log['time']),
