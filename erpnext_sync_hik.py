@@ -123,7 +123,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         if last_line:
             last_user_id, last_timestamp = last_line.split("\t")[4:6]
             if "T" in last_timestamp:
-                last_timestamp = datetime.datetime.fromtimestamp(float(datetime.datetime.strptime(last_timestamp.replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S")))
+                last_timestamp = datetime.datetime.fromtimestamp(float(datetime.datetime.strptime(last_timestamp.replace("T"," ").replace("+08:00","").replace("+06:00",""),"%Y-%m-%d %H:%M:%S")))
             else:
                 last_timestamp = datetime.datetime.fromtimestamp(float(last_timestamp))
 
@@ -144,7 +144,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                     break
             elif last_timestamp:
                 print ('x time ', x['time'])
-                if datetime.datetime.strptime(x['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S") >= last_timestamp:
+                if datetime.datetime.strptime(x['time'].replace("T"," ").replace("+08:00","").replace("+06:00",""),"%Y-%m-%d %H:%M:%S") >= last_timestamp:
                 #if x['time'] >= last_timestamp:
                     index_of_last = i
                     break
