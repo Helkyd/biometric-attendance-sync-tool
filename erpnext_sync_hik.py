@@ -157,7 +157,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                 punch_direction = None
         #FIX 18-08-2025; Fetch EMP and replace employeeNoString
         #TODO: Fetch EMP and replace employeeNoString
-        if device_attendance_log['employeeNoString'] != "0":
+        if device_attendance_log['employeeNoString'] != "0" and device_attendance_log['employeeNoString'] != "1":
             print ('Vai fazer o send TO ERPNEXT')
             erpnext_status_code, erpnext_message = send_to_erpnext(device_attendance_log['employeeNoString'], datetime.datetime.strptime(device_attendance_log['time'].replace("T"," ").replace("+08:00",""),"%Y-%m-%d %H:%M:%S"), device['device_id'], punch_direction)
             if erpnext_status_code == 200:
