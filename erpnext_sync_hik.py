@@ -196,8 +196,8 @@ def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, cl
         eventstoday = hikvision_client.all_event_search()
         print ('Eventos HOJE....')
         #print (eventstoday.status_code)
-        print (eventstoday)
-        attendances = json.loads(eventstoday)['AcsEvent']['InfoList']
+        print (eventstoday['AcsEvent']['InfoList'])
+        attendances = eventstoday['AcsEvent']['InfoList']
 
         #attendances = conn.get_attendance()
 
