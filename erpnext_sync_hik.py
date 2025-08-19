@@ -188,7 +188,8 @@ def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, cl
         info_logger.info("\t".join((ip, "Device Disable Attempted. Result:")))
         
         #eventstoday = hikvision_client.event_search()
-        eventstoday = hikvision_client.all_event_search(dataInicio="2025-08-01", dataFim="2025-08-19")
+        #eventstoday = hikvision_client.all_event_search(dataInicio="2025-08-01", dataFim="2025-08-19")
+        eventstoday = hikvision_client.all_event_search()
         print ('Eventos HOJE....')
         print (eventstoday.status_code)
         print (eventstoday.text)
