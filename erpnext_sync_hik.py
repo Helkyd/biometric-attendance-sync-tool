@@ -185,7 +185,8 @@ def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, cl
         # device is disabled when fetching data
         info_logger.info("\t".join((ip, "Device Disable Attempted. Result:")))
         
-        eventstoday = hikvision_client.event_search()
+        #eventstoday = hikvision_client.event_search()
+        eventstoday = hikvision_client.all_event_search(dataInicio="2025-08-01", dataFim="2025-08-19")
         print ('Eventos HOJE....')
         print (eventstoday.status_code)
         print (eventstoday.text)
@@ -213,12 +214,12 @@ def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, cl
                 print ('RETORNA A LISTA com emp_number')
                 lista_emps = json.loads(response._content)['message']
                 for ll in lista_emps:
-                    print ('llll ', ll['name'])
-                    print (ll['attendance_device_id'])
+                    #print ('llll ', ll['name'])
+                    #print (ll['attendance_device_id'])
                     for idx,att in enumerate(attendances):
-                        print ('atttt ', att['employeeNoString'])
+                        #print ('atttt ', att['employeeNoString'])
                         if ll['attendance_device_id'] == att['employeeNoString']:
-                            print ('ADD EMP_NO')
+                            #print ('ADD EMP_NO')
                             attendances[idx].update({"emp_no": ll['name']})
                         
 
