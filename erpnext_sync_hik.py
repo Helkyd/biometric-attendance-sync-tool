@@ -122,8 +122,11 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
         last_timestamp = None
         if last_line:
             last_user_id, last_timestamp = last_line.split("\t")[4:6]
+            print ('last_timestamp ', last_timestamp)
             if "T" in last_timestamp:
-                last_timestamp = datetime.datetime.fromtimestamp(float(datetime.datetime.strptime(last_timestamp.replace("T"," ").replace("+08:00","").replace("+06:00",""),"%Y-%m-%d %H:%M:%S")))
+                #last_timestamp = datetime.datetime.fromtimestamp(float(datetime.datetime.strptime(last_timestamp.replace("T"," ").replace("+08:00","").replace("+06:00",""),"%Y-%m-%d %H:%M:%S")))
+                last_timestamp = datetime.datetime.strptime(last_timestamp.replace("T"," ")[:last_timestamp.find("+")],"%Y-%m-%d %H:%M:%S")
+
             else:
                 last_timestamp = datetime.datetime.fromtimestamp(float(last_timestamp))
 
