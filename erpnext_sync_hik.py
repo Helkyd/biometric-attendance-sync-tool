@@ -214,13 +214,11 @@ def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, cl
             #POR FAZER
             print ('Por fazer o DUMP file e limpar registos...')
             print ('ERPNEXT URL ', config.ERPNEXT_URL)
-            print ('API ', config.ERPNEXT_API_KEY)
-            print ('APISE ', config.ERPNEXT_API_SECRET)
             #Adds name (Emp/)
             url = f"{config.ERPNEXT_URL}/api/method/angola_erp.util.angola.lista_emps_hikvision"
             print ('URRRRRRRRLSSss')
             print (url)
-            
+
             headers = {
                 'Authorization': "token "+ config.ERPNEXT_API_KEY + ":" + config.ERPNEXT_API_SECRET,
                 'Accept': 'application/json'
