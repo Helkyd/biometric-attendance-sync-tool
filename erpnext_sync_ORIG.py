@@ -38,8 +38,6 @@ ERPNEXT_VERSION = getattr(config, 'ERPNEXT_VERSION', 13)
 #  - <device_id>_push_timestamp
 #  - <shift_type>_sync_timestamp
 
-#Last Modified: 30-07-2026
-
 def main():
     """Takes care of checking if it is time to pull data based on config,
     then calling the relevent functions to pull data and push to EPRNext.
@@ -77,7 +75,6 @@ def main():
 
 
 def pull_process_and_push_data(device, device_attendance_logs=None):
-    #Last Modified: 30-07-2026
     """ Takes a single device config as param and pulls data from that device.
 
     params:
@@ -140,11 +137,7 @@ def pull_process_and_push_data(device, device_attendance_logs=None):
                 str(device_attendance_log['punch']), str(device_attendance_log['status']),
                 json.dumps(device_attendance_log, default=str)]))
             if not(any(error in erpnext_message for error in allowlisted_errors)):
-                #FIX 30-07-2027; For V15 ignore this
-                if ERPNEXT_VERSION > 13:
-                    print ('ignore API ERPNext error for Employee not existing...')
-                else:
-                    raise Exception('API Call to ERPNext Failed.')
+                raise Exception('API Call to ERPNext Failed.')
 
 
 def get_all_attendance_from_device(ip, port=4370, timeout=30, device_id=None, clear_from_device_on_fetch=False):
@@ -324,14 +317,7 @@ if not os.path.exists(config.LOGS_DIRECTORY):
     os.makedirs(config.LOGS_DIRECTORY)
 error_logger = setup_logger('error_logger', '/'.join([config.LOGS_DIRECTORY, 'error.log']), logging.ERROR)
 info_logger = setup_logger('info_logger', '/'.join([config.LOGS_DIRECTORY, 'logs.log']))
-#FIX 30-07-2027; For V15 ignore this
-if ERPNEXT_VERSION > 13:
-    #FIX 30-07-2026
-    status = pickledb.PickleDB('/'.join([config.LOGS_DIRECTORY, 'status.json']))
-else:
-    status = pickledb.PickleDB.load('/'.join([config.LOGS_DIRECTORY, 'status.json']))
-
-
+status = pickledb.load('/'.join([config.LOGS_DIRECTORY, 'status.json']), True)
 
 def infinite_loop(sleep_time=15):
     print("Service Running...")
